@@ -27,6 +27,37 @@ const redisModules = REDIS_URL
     ]
   : []
 
+/**
+ * S3-compatible file storage, pointed at Cloudflare R2 in production. Without
+ * it Medusa writes uploads to local disk, which survives on a VPS volume but is
+ * lost on any host with an ephemeral filesystem. Falls back to local storage
+ * when unconfigured so `medusa develop` needs no cloud credentials.
+ */
+const fileModule = process.env.S3_BUCKET
+  ? [
+      {
+        resolve: '@medusajs/medusa/file',
+        options: {
+          providers: [
+            {
+              resolve: '@medusajs/medusa/file-s3',
+              id: 's3',
+              options: {
+                file_url: process.env.S3_FILE_URL,
+                access_key_id: process.env.S3_ACCESS_KEY_ID,
+                secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+                bucket: process.env.S3_BUCKET,
+                endpoint: process.env.S3_ENDPOINT,
+                // R2 has no notion of regions but the AWS SDK demands one.
+                region: 'auto',
+              },
+            },
+          ],
+        },
+      },
+    ]
+  : []
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -41,6 +72,7 @@ module.exports = defineConfig({
   },
   modules: [
     ...redisModules,
+    ...fileModule,
     {
       resolve: '@medusajs/medusa/payment',
       options: {

@@ -1,0 +1,23 @@
+# Caddy provisions and renews the TLS certificate automatically; the only
+# prerequisite is that BACKEND_DOMAIN's A record already points at this server.
+{$BACKEND_DOMAIN} {
+	encode gzip zstd
+
+	# Product images are served from R2, not from here, so the only large bodies
+	# reaching Medusa are admin uploads on their way through to R2.
+	request_body {
+		max_size 20MB
+	}
+
+	reverse_proxy backend:9000 {
+		health_uri /health
+		health_interval 30s
+	}
+
+	log {
+		output file /data/access.log {
+			roll_size 10MB
+			roll_keep 5
+		}
+	}
+}
