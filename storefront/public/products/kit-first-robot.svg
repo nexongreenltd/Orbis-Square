@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="First Robot Kit">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#ec3013" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#ec3013" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="#201e1d"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  
+    <rect x="235" y="300" width="330" height="230" rx="10" fill="#2d2b2b" stroke="#ec3013" stroke-width="3"/>
+    <path d="M 235 360 L 565 360" stroke="#ec3013" stroke-width="3" opacity="0.7"/>
+    <path d="M 400 300 L 400 530" stroke="#ff9783" stroke-width="2" opacity="0.35"/>
+    <rect x="265" y="390" width="105" height="55" rx="6" fill="#201e1d" stroke="#ff9783" stroke-width="2.5"/>
+    <rect x="430" y="390" width="105" height="55" rx="6" fill="#201e1d" stroke="#ff9783" stroke-width="2.5"/>
+    <circle cx="317" cy="480" r="24" fill="none" stroke="#ff9783" stroke-width="2.5"/>
+    <rect x="455" y="460" width="55" height="42" rx="5" fill="none" stroke="#ff9783" stroke-width="2.5"/>
+    <path d="M 300 300 L 300 270 L 500 270 L 500 300" fill="none" stroke="#ec3013" stroke-width="3"/>
+  <text x="400" y="726" text-anchor="middle" font-family="Inter, -apple-system, Segoe UI, Roboto, sans-serif" font-size="17" font-weight="500" letter-spacing="3.4" fill="#ff9783" opacity="0.7">ORBIS SQUARE</text>
+</svg>

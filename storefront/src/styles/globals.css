@@ -1,0 +1,187 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/**
+ * Orbis Square brand theme.
+ *
+ * @medusajs/ui drives every one of its components from the CSS variables the
+ * ui-preset declares, so remapping them here re-skins buttons, inputs, badges
+ * and tables in one place instead of overriding components individually.
+ */
+:root,
+[data-mode="light"] {
+  /* Interactive accents — the red-orange that carries the brand. */
+  --fg-interactive: rgba(236, 48, 19, 1);
+  --fg-interactive-hover: rgba(174, 24, 0, 1);
+  --bg-interactive: rgba(236, 48, 19, 1);
+  --border-interactive: rgba(236, 48, 19, 1);
+
+  /* Primary buttons and inverted surfaces run warm near-black. */
+  --button-inverted: rgba(32, 30, 29, 1);
+  --button-inverted-hover: rgba(45, 43, 43, 1);
+  --button-inverted-pressed: rgba(68, 65, 65, 1);
+
+  --fg-base: rgba(32, 30, 29, 1);
+  --fg-subtle: rgba(125, 121, 121, 1);
+  --fg-muted: rgba(155, 151, 151, 1);
+
+  /* Surfaces sit on warm grey, not white. */
+  --bg-base: rgba(243, 242, 242, 1);
+  --bg-subtle: rgba(234, 233, 233, 1);
+  --bg-component: rgba(248, 244, 244, 1);
+  --bg-field: rgba(248, 244, 244, 1);
+
+  --border-base: rgba(215, 211, 211, 1);
+  --border-strong: rgba(186, 182, 182, 1);
+
+  --contrast-bg-base: rgba(32, 30, 29, 1);
+  --contrast-bg-base-hover: rgba(45, 43, 43, 1);
+  --contrast-bg-base-pressed: rgba(68, 65, 65, 1);
+  --contrast-bg-subtle: rgba(45, 43, 43, 1);
+}
+
+@layer base {
+  body {
+    @apply bg-canvas text-ink-900 antialiased;
+  }
+
+  /* Headings carry the design's heavy weight and tight tracking. */
+  h1,
+  h2,
+  h3 {
+    @apply font-extrabold tracking-tight;
+  }
+
+  /* Keyboard focus should read as the brand accent everywhere. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-orbis-600 ring-offset-2 ring-offset-canvas;
+  }
+
+  ::selection {
+    @apply bg-orbis-600 text-white;
+  }
+}
+
+@layer components {
+  /* Small uppercase label above a section heading — used throughout the
+     reference design ("SIX DEPARTMENTS", "NEW ARRIVALS"). */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-orbis-600;
+  }
+
+  /* The square accent marker that precedes eyebrow labels. */
+  .eyebrow::before {
+    content: "";
+    @apply inline-block h-2 w-2 bg-orbis-600;
+  }
+}
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  input:focus ~ label,
+  input:not(:placeholder-shown) ~ label {
+    @apply -translate-y-2 text-xsmall-regular;
+  }
+
+  input:focus ~ label {
+    @apply left-0;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    border: 1px solid #212121;
+    -webkit-text-fill-color: #212121;
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+}
+
+@layer components {
+  .content-container {
+    @apply max-w-[1440px] w-full mx-auto px-6;
+  }
+
+  .contrast-btn {
+    @apply px-4 py-2 border border-black rounded-full hover:bg-black hover:text-white transition-colors duration-200 ease-in;
+  }
+
+  .text-xsmall-regular {
+    @apply text-[10px] leading-4 font-normal;
+  }
+
+  .text-small-regular {
+    @apply text-xs leading-5 font-normal;
+  }
+
+  .text-small-semi {
+    @apply text-xs leading-5 font-semibold;
+  }
+
+  .text-base-regular {
+    @apply text-sm leading-6 font-normal;
+  }
+
+  .text-base-semi {
+    @apply text-sm leading-6 font-semibold;
+  }
+
+  .text-large-regular {
+    @apply text-base leading-6 font-normal;
+  }
+
+  .text-large-semi {
+    @apply text-base leading-6 font-semibold;
+  }
+
+  .text-xl-regular {
+    @apply text-2xl leading-[36px] font-normal;
+  }
+
+  .text-xl-semi {
+    @apply text-2xl leading-[36px] font-semibold;
+  }
+
+  .text-2xl-regular {
+    @apply text-[30px] leading-[48px] font-normal;
+  }
+
+  .text-2xl-semi {
+    @apply text-[30px] leading-[48px] font-semibold;
+  }
+
+  .text-3xl-regular {
+    @apply text-[32px] leading-[44px] font-normal;
+  }
+
+  .text-3xl-semi {
+    @apply text-[32px] leading-[44px] font-semibold;
+  }
+}
