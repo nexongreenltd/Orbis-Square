@@ -160,6 +160,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|images|assets|png|svg|jpg|jpeg|gif|webp).*)",
+    // The metadata routes (opengraph-image, twitter-image, apple-icon, icon)
+    // live at the root rather than under [countryCode], so prefixing them with
+    // a region sends them to /bd/opengraph-image, which redirects again — a
+    // loop that leaves social crawlers with no image at all.
+    "/((?!api|_next/static|_next/image|favicon.ico|images|assets|png|svg|jpg|jpeg|gif|webp|opengraph-image|twitter-image|apple-icon|icon).*)",
   ],
 }

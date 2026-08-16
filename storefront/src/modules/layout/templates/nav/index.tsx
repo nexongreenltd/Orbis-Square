@@ -6,6 +6,7 @@ import { listCategories } from "@lib/data/categories"
 import { getLocale } from "@lib/data/locale-actions"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Logo from "@modules/common/icons/logo"
 import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
 
@@ -46,13 +47,7 @@ export default async function Nav() {
               className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
               data-testid="nav-store-link"
             >
-              {/* Placeholder mark — swap for the Orbis Square logo when ready */}
-              <span
-                aria-hidden
-                className="grid h-8 w-8 place-items-center bg-orbis-600 text-[15px] font-extrabold text-white"
-              >
-                O
-              </span>
+              <Logo size={32} aria-hidden />
               <span className="text-base font-extrabold uppercase tracking-[0.16em] text-ink-900">
                 Orbis Square
               </span>

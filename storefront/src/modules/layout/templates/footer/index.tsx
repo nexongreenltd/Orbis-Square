@@ -3,6 +3,7 @@ import { listCollections } from "@lib/data/collections"
 import { Text, clx } from "@medusajs/ui"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Logo from "@modules/common/icons/logo"
 
 export default async function Footer() {
   const { collections } = await listCollections({
@@ -19,12 +20,7 @@ export default async function Footer() {
               href="/"
               className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
             >
-              <span
-                aria-hidden
-                className="grid h-7 w-7 place-items-center rounded-md bg-orbis-600 text-[13px] font-extrabold text-white"
-              >
-                O
-              </span>
+              <Logo size={28} tone="light" aria-hidden />
               <span className="text-base font-extrabold uppercase tracking-[0.16em] text-white">
                 Orbis Square
               </span>
