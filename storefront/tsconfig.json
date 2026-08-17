@@ -14,10 +14,15 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": "./src",
+    // No baseUrl: it is deprecated, and its only other job here was letting
+    // `types/*` and `styles/*` resolve as bare specifiers, which the explicit
+    // mappings below now cover. Without baseUrl, paths resolve relative to
+    // this file.
     "paths": {
-      "@lib/*": ["lib/*"],
-      "@modules/*": ["modules/*"]
+      "@lib/*": ["./src/lib/*"],
+      "@modules/*": ["./src/modules/*"],
+      "types/*": ["./src/types/*"],
+      "styles/*": ["./src/styles/*"]
     },
     "plugins": [
       {
