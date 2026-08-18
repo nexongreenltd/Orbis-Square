@@ -1,8 +1,49 @@
 # Single-host production stack: Medusa + Postgres + Redis behind Caddy.
 #
 # Only Caddy publishes ports. Postgres and Redis stay on the internal network
-# and are unreachable from the internet, so neither needs to be firewalled
-# separately.
+# and are unreachable from the internet, so neither needs separate firewalling.
+#
+# Scaling, in the order you should reach for it (see DEPLOY.md):
+#   1. shared mode, one container   — the default, fine to a few hundred orders/day
+#   2. `--profile scaled`           — splits background jobs onto their own container
+#   3. `--scale backend=N`          — more HTTP capacity; Caddy load balances by DNS
+#   4. move Postgres to its own box — when the database is the bottleneck, not the app
+
+x-app: &app
+  # Only `backend` carries `build:`. Compose builds every service that declares
+  # it, and two of them exporting the same tag at once makes buildx fail, so the
+  # others just reference the tag it produces.
+  image: orbissquare-backend:latest
+  restart: unless-stopped
+  environment: &app-env
+    NODE_ENV: production
+    # sslmode=disable is load-bearing. Medusa decides TLS by pattern-matching
+    # this URL: anything that is not localhost/127.0.0.1 and does not say
+    # sslmode=disable gets SSL switched on, and Postgres here speaks no TLS, so
+    # the handshake hangs until the migration's 10s timeout. The traffic never
+    # leaves the private compose network. Point DATABASE_URL at a managed
+    # Postgres later and dropping this flag is what turns TLS back on.
+    DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-medusa}?sslmode=disable
+    REDIS_URL: redis://redis:6379
+    STORE_CORS: ${STORE_CORS}
+    ADMIN_CORS: ${ADMIN_CORS}
+    AUTH_CORS: ${AUTH_CORS}
+    JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    COOKIE_SECRET: ${COOKIE_SECRET:?COOKIE_SECRET is required}
+    # Cloudflare R2 (S3-compatible) — see medusa-config.ts
+    S3_FILE_URL: ${S3_FILE_URL}
+    S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+    S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+    S3_BUCKET: ${S3_BUCKET}
+    S3_ENDPOINT: ${S3_ENDPOINT}
+    # PayPlus
+    PAYPLUS_BASE_URL: ${PAYPLUS_BASE_URL}
+    PAYPLUS_MERCHANT_ID: ${PAYPLUS_MERCHANT_ID}
+    PAYPLUS_STORE_ID: ${PAYPLUS_STORE_ID}
+    PAYPLUS_API_KEY: ${PAYPLUS_API_KEY}
+    PAYPLUS_SECRET_KEY: ${PAYPLUS_SECRET_KEY}
+    PAYPLUS_SANDBOX: ${PAYPLUS_SANDBOX:-false}
+  networks: [internal]
 
 services:
   postgres:
@@ -22,21 +63,24 @@ services:
       -c effective_cache_size=1536MB
       -c maintenance_work_mem=128MB
       -c work_mem=8MB
-      -c max_connections=50
+      -c max_connections=100
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medusa} -d ${POSTGRES_DB:-medusa}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 1g
     networks: [internal]
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    # Medusa uses Redis for cache, events and workflow state. maxmemory caps it
-    # so a burst of events can't push the box into swap; workflow state matters
-    # more than cache entries, hence allkeys-lru rather than noeviction.
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    # Medusa uses Redis for cache, events AND the BullMQ job queue. noeviction is
+    # required: under allkeys-lru Redis silently drops queued jobs and workflow
+    # state to reclaim memory, so orders quietly stop being processed. With
+    # noeviction a full Redis rejects writes loudly instead — the right failure
+    # mode for a queue. Medusa warns on startup if this is set wrong.
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction
     volumes:
       - redis_data:/data
     healthcheck:
@@ -44,41 +88,57 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 384m
     networks: [internal]
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
+  # Runs to completion, then exits. Everything else waits for it, so the schema
+  # is always current before a single request is served — and is applied exactly
+  # once no matter how many app containers are running.
+  migrate:
+    <<: *app
+    restart: "no"
+    command: ["npx", "medusa", "db:migrate"]
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  backend:
+    <<: *app
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      NODE_ENV: production
-      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-medusa}
-      REDIS_URL: redis://redis:6379
-      STORE_CORS: ${STORE_CORS}
-      ADMIN_CORS: ${ADMIN_CORS}
-      AUTH_CORS: ${AUTH_CORS}
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
-      COOKIE_SECRET: ${COOKIE_SECRET:?COOKIE_SECRET is required}
-      # Cloudflare R2 (S3-compatible) — see medusa-config.ts
-      S3_FILE_URL: ${S3_FILE_URL}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
-      S3_BUCKET: ${S3_BUCKET}
-      S3_ENDPOINT: ${S3_ENDPOINT}
-      # PayPlus
-      PAYPLUS_BASE_URL: ${PAYPLUS_BASE_URL}
-      PAYPLUS_MERCHANT_ID: ${PAYPLUS_MERCHANT_ID}
-      PAYPLUS_STORE_ID: ${PAYPLUS_STORE_ID}
-      PAYPLUS_API_KEY: ${PAYPLUS_API_KEY}
-      PAYPLUS_SECRET_KEY: ${PAYPLUS_SECRET_KEY}
-      PAYPLUS_SANDBOX: ${PAYPLUS_SANDBOX:-false}
-    networks: [internal]
+      <<: *app-env
+      # `shared` runs HTTP and background jobs in one process — right until the
+      # box has spare capacity. Switch to `server` and enable the worker profile
+      # to stop a long-running job from adding latency to checkout.
+      MEDUSA_WORKER_MODE: ${MEDUSA_WORKER_MODE:-shared}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    mem_limit: 1500m
+
+  # Off by default. `docker compose --profile scaled up -d` starts it, and only
+  # then should backend move to MEDUSA_WORKER_MODE=server — with no worker
+  # running, nothing would process scheduled jobs or workflow steps.
+  worker:
+    <<: *app
+    profiles: [scaled]
+    environment:
+      <<: *app-env
+      MEDUSA_WORKER_MODE: worker
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    mem_limit: 1g
 
   caddy:
     image: caddy:2-alpine
@@ -93,6 +153,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    mem_limit: 256m
     networks: [internal]
 
 volumes:
