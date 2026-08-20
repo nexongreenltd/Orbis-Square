@@ -32,8 +32,19 @@ const redisModules = REDIS_URL
  * it Medusa writes uploads to local disk, which survives on a VPS volume but is
  * lost on any host with an ephemeral filesystem. Falls back to local storage
  * when unconfigured so `medusa develop` needs no cloud credentials.
+ *
+ * Gated on the credentials rather than the bucket name: .env.production.template
+ * ships a bucket name pre-filled, so keying on that alone registers the provider
+ * before keys exist and the server crash-loops on "Access key ID and secret
+ * access key are required".
  */
-const fileModule = process.env.S3_BUCKET
+const hasS3Credentials = Boolean(
+  process.env.S3_ACCESS_KEY_ID &&
+    process.env.S3_SECRET_ACCESS_KEY &&
+    process.env.S3_BUCKET
+)
+
+const fileModule = hasS3Credentials
   ? [
       {
         resolve: '@medusajs/medusa/file',

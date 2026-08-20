@@ -241,12 +241,16 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
 ### Uploads failing
 
-Check `S3_BUCKET` is set — `medusa-config.ts` falls back to local disk when it is
-empty, which works silently until a rebuild discards the files.
+The S3 provider is only registered when `S3_ACCESS_KEY_ID`,
+`S3_SECRET_ACCESS_KEY` and `S3_BUCKET` are all set; otherwise Medusa falls back
+to local disk, which works silently until a rebuild discards the files.
 
 ```bash
 docker compose exec backend env | grep S3_
 ```
+
+If the backend crash-loops on "Access key ID and secret access key are required",
+the bucket name is set but the keys are not — fill them in or blank all three.
 
 ### Migration fails with a connection timeout
 
