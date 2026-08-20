@@ -7,10 +7,25 @@ const requiredEnvs = [
     description:
       "Learn how to create a publishable key: https://docs.medusajs.com/v2/resources/storefront-development/publishable-api-keys",
   },
+  {
+    key: "MEDUSA_BACKEND_URL",
+    // Without this the SDK silently falls back to http://localhost:9000, which
+    // only fails much later — as an ECONNREFUSED while collecting page data.
+    // Required for builds only, so local dev keeps working off the default.
+    productionOnly: true,
+    description:
+      "The public URL of your Medusa backend, e.g. https://admin.orbissquare.com",
+  },
 ]
 
 function checkEnvVariables() {
+  const isProduction = process.env.NODE_ENV === "production"
+
   const missingEnvs = requiredEnvs.filter(function (env) {
+    if (env.productionOnly && !isProduction) {
+      return false
+    }
+
     return !process.env[env.key]
   })
 
