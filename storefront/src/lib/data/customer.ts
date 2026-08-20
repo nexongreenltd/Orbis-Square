@@ -259,3 +259,88 @@ export const updateCustomerAddress = async (
       return { success: false, error: err.toString() }
     })
 }
+
+export type PasswordResetState = {
+  success: boolean
+  error: string | null
+  /** Echoed back so the confirmation screen can name the address. */
+  email?: string
+}
+
+/**
+ * Step one of a customer password reset: ask Medusa to email a reset token.
+ *
+ * The result is deliberately identical whether or not the address belongs to an
+ * account — reporting "no such customer" here would turn this form into a way
+ * to test which email addresses are registered.
+ */
+export async function requestPasswordReset(
+  _currentState: unknown,
+  formData: FormData
+): Promise<PasswordResetState> {
+  const email = formData.get("email") as string
+
+  if (!email) {
+    return { success: false, error: "Enter your email address." }
+  }
+
+  try {
+    await sdk.auth.resetPassword("customer", "emailpass", {
+      identifier: email,
+    })
+  } catch (error: any) {
+    // Swallowed for the same reason: a failure here still must not distinguish
+    // a registered address from an unregistered one.
+    console.error("Password reset request failed:", error?.toString())
+  }
+
+  return { success: true, error: null, email }
+}
+
+/**
+ * Step two: exchange the emailed token for a new password.
+ */
+export async function resetPassword(
+  _currentState: unknown,
+  formData: FormData
+): Promise<PasswordResetState> {
+  const email = formData.get("email") as string
+  const token = formData.get("token") as string
+  const password = formData.get("password") as string
+  const confirmPassword = formData.get("confirm_password") as string
+
+  if (!token || !email) {
+    return {
+      success: false,
+      error: "This reset link is incomplete. Request a new one.",
+    }
+  }
+
+  if (password !== confirmPassword) {
+    return { success: false, error: "The two passwords don't match." }
+  }
+
+  if (password.length < 8) {
+    return {
+      success: false,
+      error: "Choose a password of at least 8 characters.",
+    }
+  }
+
+  try {
+    await sdk.auth.updateProvider(
+      "customer",
+      "emailpass",
+      { email, password },
+      token
+    )
+  } catch (error: any) {
+    return {
+      success: false,
+      error:
+        "This reset link is invalid or has expired. Request a new one and try again.",
+    }
+  }
+
+  return { success: true, error: null }
+}

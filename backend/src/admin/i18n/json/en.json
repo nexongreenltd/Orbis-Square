@@ -1,0 +1,27 @@
+{
+  "login": {
+    "title": "Orbis Square Admin",
+    "hint": "Sign in to manage the store",
+    "forgotPassword": "Forgot your password? <0>Reset it</0>"
+  },
+  "resetPassword": {
+    "hint": "Enter your email and we'll send you a link to set a new password.",
+    "newPasswordHint": "Choose a new password for your Orbis Square admin account.",
+    "successfulRequestTitle": "Check your email",
+    "successfulRequest": "If that address belongs to an Orbis Square admin account, a reset link is on its way. Check your spam folder if it hasn't arrived in a few minutes.",
+    "successfulResetTitle": "Password updated",
+    "successfulReset": "You can now sign in with your new password.",
+    "invalidTokenTitle": "That reset link isn't valid",
+    "invalidTokenHint": "Request a new one from the reset page.",
+    "expiredTokenTitle": "That reset link has expired",
+    "invalidLinkTitle": "That reset link isn't valid",
+    "invalidLinkHint": "Request a new one and try again."
+  },
+  "invite": {
+    "title": "Join Orbis Square",
+    "hint": "Set up your admin account below",
+    "successTitle": "Your account is ready",
+    "successHint": "You can start managing the store right away.",
+    "successAction": "Open the admin"
+  }
+}

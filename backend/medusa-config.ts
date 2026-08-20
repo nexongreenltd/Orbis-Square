@@ -1,5 +1,7 @@
 import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
+import { orbisAdminBranding } from './src/lib/admin-branding/vite-plugin'
+
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 const REDIS_URL = process.env.REDIS_URL
@@ -70,6 +72,18 @@ const fileModule = hasS3Credentials
   : []
 
 module.exports = defineConfig({
+  admin: {
+    /**
+     * The login, reset-password and invite screens ship inside the pre-built
+     * dashboard bundle. This injects the Orbis Square theme into the admin's
+     * index.html so the branding also covers a cold load of the reset link,
+     * which no widget zone can reach.
+     */
+    vite: (config) => ({
+      ...config,
+      plugins: [...(config.plugins ?? []), orbisAdminBranding()],
+    }),
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: REDIS_URL,

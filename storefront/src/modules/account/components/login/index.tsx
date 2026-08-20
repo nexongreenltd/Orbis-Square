@@ -1,8 +1,10 @@
 import { login } from "@lib/data/customer"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
+import AuthShell from "@modules/account/components/auth-shell"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useActionState } from "react"
 
 type Props = {
@@ -13,51 +15,58 @@ const Login = ({ setCurrentView }: Props) => {
   const [message, formAction] = useActionState(login, null)
 
   return (
-    <div
-      className="max-w-sm w-full flex flex-col items-center"
+    <AuthShell
+      eyebrow="Account"
+      title="Welcome back"
+      description="Sign in for faster checkout, saved addresses and your order history."
       data-testid="login-page"
+      footer={
+        <>
+          Not a member yet?{" "}
+          <button
+            onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
+            className="font-bold text-orbis-600 underline-offset-4 transition-colors hover:text-orbis-700 hover:underline"
+            data-testid="register-button"
+          >
+            Create an account
+          </button>
+        </>
+      }
     >
-      <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
-      <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Sign in to access an enhanced shopping experience.
-      </p>
-      <form className="w-full" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            title="Enter a valid email address."
-            autoComplete="email"
-            required
-            data-testid="email-input"
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            data-testid="password-input"
-          />
-        </div>
+      <form className="flex w-full flex-col gap-y-4" action={formAction}>
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          title="Enter a valid email address."
+          autoComplete="email"
+          required
+          data-testid="email-input"
+        />
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          data-testid="password-input"
+        />
+
+        <LocalizedClientLink
+          href="/forgot-password"
+          className="self-start text-xs font-bold uppercase tracking-[0.08em] text-orbis-600 transition-colors hover:text-orbis-700"
+          data-testid="forgot-password-link"
+        >
+          Forgot your password?
+        </LocalizedClientLink>
+
         <ErrorMessage error={message} data-testid="login-error-message" />
-        <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
+
+        <SubmitButton data-testid="sign-in-button" className="mt-2 w-full">
           Sign in
         </SubmitButton>
       </form>
-      <span className="text-center text-ui-fg-base text-small-regular mt-6">
-        Not a member?{" "}
-        <button
-          onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
-          className="underline"
-          data-testid="register-button"
-        >
-          Join us
-        </button>
-        .
-      </span>
-    </div>
+    </AuthShell>
   )
 }
 
