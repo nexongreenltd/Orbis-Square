@@ -1,6 +1,6 @@
 "use client"
 
-import { Table, Text, clx } from "@medusajs/ui"
+import { clx } from "@medusajs/ui"
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
@@ -44,100 +44,121 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   const maxQtyFromInventory = 10
   const maxQuantity = item.variant?.manage_inventory ? 10 : maxQtyFromInventory
 
+  const isFull = type === "full"
+  const productLink = `/products/${item.product_handle}`
+
   return (
-    <Table.Row className="w-full" data-testid="product-row">
-      <Table.Cell className="!pl-0 p-4 w-24">
+    <li
+      className="border-b border-ink-200 last:border-b-0"
+      data-testid="product-row"
+    >
+      <div
+        className={clx(
+          "grid items-start gap-x-4 gap-y-3 p-4",
+          "grid-cols-[auto_minmax(0,1fr)_auto]",
+          {
+            "small:grid-cols-[auto_minmax(0,1fr)_168px_120px_130px]": isFull,
+            "small:grid-cols-[auto_minmax(0,1fr)_auto]": !isFull,
+          }
+        )}
+      >
         <LocalizedClientLink
-          href={`/products/${item.product_handle}`}
-          className={clx("flex", {
-            "w-16": type === "preview",
-            "small:w-24 w-12": type === "full",
-          })}
+          href={productLink}
+          className={clx(
+            "group block self-start border border-ink-900",
+            {
+              "w-14": !isFull,
+              "w-16 row-span-2 small:row-span-1 small:w-20": isFull,
+            }
+          )}
         >
           <Thumbnail
             thumbnail={item.thumbnail}
             images={item.variant?.product?.images}
             size="square"
+            className="border-0 shadow-none"
           />
         </LocalizedClientLink>
-      </Table.Cell>
 
-      <Table.Cell className="text-left">
-        <Text
-          className="txt-medium-plus text-ui-fg-base"
-          data-testid="product-title"
-        >
-          {item.product_title}
-        </Text>
-        <LineItemOptions variant={item.variant} data-testid="product-variant" />
-      </Table.Cell>
-
-      {type === "full" && (
-        <Table.Cell>
-          <div className="flex gap-2 items-center w-28">
-            <DeleteButton id={item.id} data-testid="product-delete-button" />
-            <CartItemSelect
-              value={item.quantity}
-              onChange={(value) => changeQuantity(parseInt(value.target.value))}
-              className="w-14 h-10 p-4"
-              data-testid="product-select-button"
-            >
-              {/* TODO: Update this with the v2 way of managing inventory */}
-              {Array.from(
-                {
-                  length: Math.min(maxQuantity, 10),
-                },
-                (_, i) => (
-                  <option value={i + 1} key={i}>
-                    {i + 1}
-                  </option>
-                )
-              )}
-
-              <option value={1} key={1}>
-                1
-              </option>
-            </CartItemSelect>
-            {updating && <Spinner />}
-          </div>
-          <ErrorMessage error={error} data-testid="product-error-message" />
-        </Table.Cell>
-      )}
-
-      {type === "full" && (
-        <Table.Cell className="hidden small:table-cell">
-          <LineItemUnitPrice
-            item={item}
-            style="tight"
-            currencyCode={currencyCode}
-          />
-        </Table.Cell>
-      )}
-
-      <Table.Cell className="!pr-0">
-        <span
-          className={clx("!pr-0", {
-            "flex flex-col items-end h-full justify-center": type === "preview",
+        <div
+          className={clx("col-start-2 flex min-w-0 flex-col gap-1", {
+            "col-span-2 small:col-span-1": isFull,
           })}
         >
-          {type === "preview" && (
-            <span className="flex gap-x-1 ">
-              <Text className="text-ui-fg-muted">{item.quantity}x </Text>
+          <LocalizedClientLink
+            href={productLink}
+            className="text-sm font-bold leading-snug text-ink-900 transition-colors hover:text-orbis-600"
+            data-testid="product-title"
+          >
+            {item.product_title}
+          </LocalizedClientLink>
+          <LineItemOptions
+            variant={item.variant}
+            data-testid="product-variant"
+          />
+          {!isFull && (
+            <div className="mt-1 flex items-baseline gap-x-1 text-xs text-ink-500">
+              <span>{item.quantity} ×</span>
               <LineItemUnitPrice
                 item={item}
                 style="tight"
                 currencyCode={currencyCode}
               />
-            </span>
+            </div>
           )}
+        </div>
+
+        {isFull && (
+          <div className="col-start-2 self-center small:col-start-3 small:self-start">
+            <div className="flex items-center gap-2">
+              <CartItemSelect
+                value={item.quantity}
+                onChange={(value) =>
+                  changeQuantity(parseInt(value.target.value))
+                }
+                data-testid="product-select-button"
+              >
+                {/* TODO: Update this with the v2 way of managing inventory */}
+                {Array.from({ length: Math.min(maxQuantity, 10) }, (_, i) => (
+                  <option value={i + 1} key={i}>
+                    {i + 1}
+                  </option>
+                ))}
+              </CartItemSelect>
+              <DeleteButton
+                id={item.id}
+                className="text-ink-500 hover:text-orbis-600"
+                data-testid="product-delete-button"
+              />
+              {updating && <Spinner />}
+            </div>
+            <ErrorMessage error={error} data-testid="product-error-message" />
+          </div>
+        )}
+
+        {isFull && (
+          <div className="hidden text-right small:col-start-4 small:block">
+            <LineItemUnitPrice
+              item={item}
+              style="tight"
+              currencyCode={currencyCode}
+            />
+          </div>
+        )}
+
+        <div
+          className={clx("col-start-3 self-center text-right", {
+            "small:col-start-5 small:self-start": isFull,
+          })}
+        >
           <LineItemPrice
             item={item}
             style="tight"
             currencyCode={currencyCode}
           />
-        </span>
-      </Table.Cell>
-    </Table.Row>
+        </div>
+      </div>
+    </li>
   )
 }
 

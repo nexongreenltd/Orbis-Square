@@ -1,10 +1,34 @@
 import { HttpTypes } from "@medusajs/types"
-import { Text } from "@medusajs/ui"
 
 type OrderDetailsProps = {
   order: HttpTypes.StoreOrder
   showStatus?: boolean
 }
+
+const Field = ({
+  label,
+  children,
+  accent,
+}: {
+  label: string
+  children: React.ReactNode
+  accent?: boolean
+}) => (
+  <div className="flex flex-col gap-y-1 p-5">
+    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-500">
+      {label}
+    </span>
+    <span
+      className={
+        accent
+          ? "text-sm font-bold text-orbis-600"
+          : "text-sm font-bold text-ink-900"
+      }
+    >
+      {children}
+    </span>
+  </div>
+)
 
 const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
   const formatStatus = (str: string) => {
@@ -14,48 +38,35 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
   }
 
   return (
-    <div>
-      <Text>
-        We have sent the order confirmation details to{" "}
-        <span
-          className="text-ui-fg-medium-plus font-semibold"
-          data-testid="order-email"
-        >
-          {order.email}
-        </span>
-        .
-      </Text>
-      <Text className="mt-2">
-        Order date:{" "}
+    <div className="grid grid-cols-1 divide-y divide-ink-200 border border-ink-200 bg-canvas-surface xsmall:grid-cols-2 xsmall:divide-x xsmall:divide-y-0 small:grid-cols-3">
+      <Field label="Order number" accent>
+        <span data-testid="order-id">#{order.display_id}</span>
+      </Field>
+      <Field label="Order date">
         <span data-testid="order-date">
           {new Date(order.created_at).toDateString()}
         </span>
-      </Text>
-      <Text className="mt-2 text-ui-fg-interactive">
-        Order number: <span data-testid="order-id">{order.display_id}</span>
-      </Text>
+      </Field>
+      <Field label="Confirmation sent to">
+        <span className="break-all" data-testid="order-email">
+          {order.email}
+        </span>
+      </Field>
 
-      <div className="flex items-center text-compact-small gap-x-4 mt-4">
-        {showStatus && (
-          <>
-            <Text>
-              Order status:{" "}
-              <span className="text-ui-fg-subtle " data-testid="order-status">
-                {formatStatus(order.fulfillment_status)}
-              </span>
-            </Text>
-            <Text>
-              Payment status:{" "}
-              <span
-                className="text-ui-fg-subtle "
-                sata-testid="order-payment-status"
-              >
-                {formatStatus(order.payment_status)}
-              </span>
-            </Text>
-          </>
-        )}
-      </div>
+      {showStatus && (
+        <>
+          <Field label="Order status">
+            <span data-testid="order-status">
+              {formatStatus(order.fulfillment_status)}
+            </span>
+          </Field>
+          <Field label="Payment status">
+            <span data-testid="order-payment-status">
+              {formatStatus(order.payment_status)}
+            </span>
+          </Field>
+        </>
+      )}
     </div>
   )
 }

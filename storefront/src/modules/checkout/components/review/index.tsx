@@ -1,9 +1,9 @@
 "use client"
 
-import { Heading, Text, clx } from "@medusajs/ui"
-
-import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
+
+import StepContainer from "@modules/checkout/components/step-container"
+import PaymentButton from "../payment-button"
 
 const Review = ({ cart }: { cart: any }) => {
   const searchParams = useSearchParams()
@@ -18,37 +18,20 @@ const Review = ({ cart }: { cart: any }) => {
     cart.shipping_methods.length > 0 &&
     (cart.payment_collection || paidByGiftcard)
 
+  const ready = isOpen && previousStepsCompleted
+
   return (
-    <div className="bg-white">
-      <div className="flex flex-row items-center justify-between mb-6">
-        <Heading
-          level="h2"
-          className={clx(
-            "flex flex-row text-3xl-regular gap-x-2 items-baseline",
-            {
-              "opacity-50 pointer-events-none select-none": !isOpen,
-            }
-          )}
-        >
-          Review
-        </Heading>
-      </div>
-      {isOpen && previousStepsCompleted && (
+    <StepContainer step={4} title="Review" active={isOpen} complete={!!ready}>
+      {ready ? (
         <>
-          <div className="flex items-start gap-x-1 w-full mb-6">
-            <div className="w-full">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                By clicking the Place Order button, you confirm that you have
-                read, understand and accept our Terms of Use, Terms of Sale and
-                Returns Policy and acknowledge that you have read Medusa
-                Store&apos;s Privacy Policy.
-              </Text>
-            </div>
-          </div>
+          <p className="mb-6 text-sm leading-relaxed text-ink-600">
+            By placing this order you confirm that you have read and accept the
+            Orbis Square terms of sale, returns policy and privacy policy.
+          </p>
           <PaymentButton cart={cart} data-testid="submit-order-button" />
         </>
-      )}
-    </div>
+      ) : null}
+    </StepContainer>
   )
 }
 

@@ -1,23 +1,30 @@
-import { Heading, Text } from "@medusajs/ui"
-
-import InteractiveLink from "@modules/common/components/interactive-link"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const EmptyCartMessage = () => {
   return (
-    <div className="py-48 px-2 flex flex-col justify-center items-start" data-testid="empty-cart-message">
-      <Heading
-        level="h1"
-        className="flex flex-row text-3xl-regular gap-x-2 items-baseline"
+    <div
+      className="flex flex-col items-start border border-ink-900 bg-canvas-surface px-6 py-14 small:px-10 small:py-16"
+      data-testid="empty-cart-message"
+    >
+      <h2 className="text-2xl font-extrabold tracking-tight text-ink-900">
+        Your cart is empty
+      </h2>
+      <p className="mt-2 max-w-[32rem] text-sm text-ink-600">
+        You don&apos;t have anything in your cart yet. Browse the catalogue to
+        find boards, sensors, motors and tools.
+      </p>
+      <LocalizedClientLink
+        href="/store"
+        className="group mt-6 inline-flex h-12 items-center gap-3 bg-orbis-600 px-6 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-orbis-700"
       >
-        Cart
-      </Heading>
-      <Text className="text-base-regular mt-4 mb-6 max-w-[32rem]">
-        You don&apos;t have anything in your cart. Let&apos;s change that, use
-        the link below to start browsing our products.
-      </Text>
-      <div>
-        <InteractiveLink href="/store">Explore products</InteractiveLink>
-      </div>
+        Explore products
+        <span
+          aria-hidden
+          className="transition-transform duration-150 group-hover:translate-x-1"
+        >
+          →
+        </span>
+      </LocalizedClientLink>
     </div>
   )
 }

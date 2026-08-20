@@ -21,31 +21,27 @@ const LineItemUnitPrice = ({
   )
 
   return (
-    <div className="flex flex-col text-ui-fg-muted justify-center h-full">
+    <div className="flex flex-col items-end gap-y-0.5">
       {hasReducedPrice && (
-        <>
-          <p>
-            {style === "default" && (
-              <span className="text-ui-fg-muted">Original: </span>
-            )}
-            <span
-              className="line-through"
-              data-testid="product-unit-original-price"
-            >
-              {convertToLocale({
-                amount: original_total / item.quantity,
-                currency_code: currencyCode,
-              })}
-            </span>
-          </p>
+        <div className="flex items-baseline gap-x-1.5 text-xs">
           {style === "default" && (
-            <span className="text-ui-fg-interactive">-{percentage_diff}%</span>
+            <span className="text-ink-500">Original:</span>
           )}
-        </>
+          <span className="text-ink-400 line-through" data-testid="product-unit-original-price">
+            {convertToLocale({
+              amount: original_total / item.quantity,
+              currency_code: currencyCode,
+            })}
+          </span>
+          {style === "default" && (
+            <span className="font-bold text-orbis-600">-{percentage_diff}%</span>
+          )}
+        </div>
       )}
       <span
-        className={clx("text-base-regular", {
-          "text-ui-fg-interactive": hasReducedPrice,
+        className={clx("text-sm tabular-nums", {
+          "font-bold text-orbis-600": hasReducedPrice,
+          "text-ink-600": !hasReducedPrice,
         })}
         data-testid="product-unit-price"
       >

@@ -1,4 +1,3 @@
-import { ChevronUpDown } from "@medusajs/icons"
 import { clx } from "@medusajs/ui"
 import {
   SelectHTMLAttributes,
@@ -9,15 +8,27 @@ import {
   useState,
 } from "react"
 
+import ChevronDown from "@modules/common/icons/chevron-down"
+
 export type NativeSelectProps = {
   placeholder?: string
+  label?: string
   errors?: Record<string, unknown>
   touched?: Record<string, unknown>
 } & SelectHTMLAttributes<HTMLSelectElement>
 
 const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
   (
-    { placeholder = "Select...", defaultValue, className, children, ...props },
+    {
+      placeholder = "Select...",
+      label,
+      defaultValue,
+      className,
+      children,
+      required,
+      name,
+      ...props
+    },
     ref
   ) => {
     const innerRef = useRef<HTMLSelectElement>(null)
@@ -37,31 +48,43 @@ const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
     }, [innerRef.current?.value])
 
     return (
-      <div>
+      <div className="flex w-full flex-col gap-y-1.5">
+        {label && (
+          <label
+            htmlFor={name}
+            className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-500"
+          >
+            {label}
+            {required && <span className="text-orbis-600"> *</span>}
+          </label>
+        )}
         <div
           onFocus={() => innerRef.current?.focus()}
           onBlur={() => innerRef.current?.blur()}
           className={clx(
-            "relative flex items-center text-base-regular border border-ui-border-base bg-ui-bg-subtle rounded-md hover:bg-ui-bg-field-hover",
+            "relative flex h-11 items-center border border-ink-200 bg-canvas text-sm text-ink-900 transition-colors hover:border-ink-300 focus-within:border-orbis-600",
             className,
             {
-              "text-ui-fg-muted": isPlaceholder,
+              "text-ink-400": isPlaceholder,
             }
           )}
         >
           <select
+            id={name}
+            name={name}
+            required={required}
             ref={innerRef}
             defaultValue={defaultValue}
             {...props}
-            className="appearance-none flex-1 bg-transparent border-none px-4 py-2.5 transition-colors duration-150 outline-none "
+            className="h-full flex-1 appearance-none border-none bg-transparent pl-3 pr-9 outline-none"
           >
             <option disabled value="">
               {placeholder}
             </option>
             {children}
           </select>
-          <span className="absolute right-4 inset-y-0 flex items-center pointer-events-none ">
-            <ChevronUpDown />
+          <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-ink-500">
+            <ChevronDown />
           </span>
         </div>
       </div>

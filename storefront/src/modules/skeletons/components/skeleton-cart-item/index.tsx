@@ -1,34 +1,21 @@
-import { Table } from "@medusajs/ui"
-
 const SkeletonCartItem = () => {
   return (
-    <Table.Row className="w-full m-4">
-      <Table.Cell className="!pl-0 p-4 w-24">
-        <div className="flex w-24 h-24 p-4 bg-gray-200 rounded-large animate-pulse" />
-      </Table.Cell>
-      <Table.Cell className="text-left">
-        <div className="flex flex-col gap-y-2">
-          <div className="w-32 h-4 bg-gray-200 animate-pulse" />
-          <div className="w-24 h-4 bg-gray-200 animate-pulse" />
+    <li className="border-b border-ink-200 last:border-b-0">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-3 p-4 small:grid-cols-[auto_minmax(0,1fr)_168px_120px_130px]">
+        <div className="row-span-2 h-16 w-16 animate-pulse bg-ink-100 small:row-span-1 small:h-20 small:w-20" />
+        <div className="col-start-2 col-span-2 flex flex-col gap-y-2 small:col-span-1">
+          <div className="h-4 w-32 animate-pulse bg-ink-100" />
+          <div className="h-3 w-24 animate-pulse bg-ink-100" />
         </div>
-      </Table.Cell>
-      <Table.Cell>
-        <div className="flex gap-2 items-center">
-          <div className="w-6 h-8 bg-gray-200 animate-pulse" />
-          <div className="w-14 h-10 bg-gray-200 animate-pulse" />
+        <div className="col-start-2 h-10 w-[74px] animate-pulse bg-ink-100 small:col-start-3" />
+        <div className="hidden small:col-start-4 small:block">
+          <div className="ml-auto h-4 w-14 animate-pulse bg-ink-100" />
         </div>
-      </Table.Cell>
-      <Table.Cell>
-        <div className="flex gap-2">
-          <div className="w-12 h-6 bg-gray-200 animate-pulse" />
+        <div className="col-start-3 self-center small:col-start-5 small:self-start">
+          <div className="ml-auto h-4 w-16 animate-pulse bg-ink-100" />
         </div>
-      </Table.Cell>
-      <Table.Cell className="!pr-0 text-right">
-        <div className="flex gap-2 justify-end">
-          <div className="w-12 h-6 bg-gray-200 animate-pulse" />
-        </div>
-      </Table.Cell>
-    </Table.Row>
+      </div>
+    </li>
   )
 }
 

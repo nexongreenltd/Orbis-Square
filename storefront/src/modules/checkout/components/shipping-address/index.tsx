@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { Container } from "@medusajs/ui"
 import Checkbox from "@modules/common/components/checkbox"
 import Input from "@modules/common/components/input"
 import { mapKeys } from "lodash"
@@ -95,8 +94,8 @@ const ShippingAddress = ({
   return (
     <>
       {customer && (addressesInRegion?.length || 0) > 0 && (
-        <Container className="mb-6 flex flex-col gap-y-4 p-5">
-          <p className="text-small-regular">
+        <div className="mb-6 flex flex-col gap-y-3 border border-ink-200 bg-canvas p-4">
+          <p className="text-sm text-ink-600">
             {`Hi ${customer.first_name}, do you want to use one of your saved addresses?`}
           </p>
           <AddressSelect
@@ -108,9 +107,9 @@ const ShippingAddress = ({
             }
             onSelect={setFormAddress}
           />
-        </Container>
+        </div>
       )}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 xsmall:grid-cols-2">
         <Input
           label="First name"
           name="shipping_address.first_name"
@@ -165,6 +164,7 @@ const ShippingAddress = ({
           data-testid="shipping-city-input"
         />
         <CountrySelect
+          label="Country"
           name="shipping_address.country_code"
           autoComplete="country"
           region={cart?.region}
@@ -182,7 +182,7 @@ const ShippingAddress = ({
           data-testid="shipping-province-input"
         />
       </div>
-      <div className="my-8">
+      <div className="my-6">
         <Checkbox
           label="Billing address same as shipping address"
           name="same_as_billing"
@@ -191,7 +191,7 @@ const ShippingAddress = ({
           data-testid="billing-address-checkbox"
         />
       </div>
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 gap-4 xsmall:grid-cols-2">
         <Input
           label="Email"
           name="email"

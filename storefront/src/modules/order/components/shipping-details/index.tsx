@@ -1,72 +1,74 @@
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Text } from "@medusajs/ui"
-
-import Divider from "@modules/common/components/divider"
 
 type ShippingDetailsProps = {
   order: HttpTypes.StoreOrder
 }
 
+const Block = ({
+  label,
+  children,
+  "data-testid": dataTestid,
+}: {
+  label: string
+  children: React.ReactNode
+  "data-testid"?: string
+}) => (
+  <div className="flex flex-col gap-y-0.5" data-testid={dataTestid}>
+    <span className="mb-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-500">
+      {label}
+    </span>
+    {children}
+  </div>
+)
+
 const ShippingDetails = ({ order }: ShippingDetailsProps) => {
+  const method = (order as any).shipping_methods?.[0]
+
   return (
-    <div>
-      <Heading level="h2" className="flex flex-row text-3xl-regular my-6">
-        Delivery
-      </Heading>
-      <div className="flex items-start gap-x-8">
-        <div
-          className="flex flex-col w-1/3"
-          data-testid="shipping-address-summary"
-        >
-          <Text className="txt-medium-plus text-ui-fg-base mb-1">
-            Shipping Address
-          </Text>
-          <Text className="txt-medium text-ui-fg-subtle">
+    <section className="flex h-full flex-col border border-ink-200 bg-canvas-surface">
+      <div className="border-b border-ink-200 px-5 py-3">
+        <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-900">
+          Delivery
+        </h2>
+      </div>
+      <div className="flex flex-col gap-5 p-5 text-sm text-ink-600">
+        <Block label="Ship to" data-testid="shipping-address-summary">
+          <span className="font-bold text-ink-900">
             {order.shipping_address?.first_name}{" "}
             {order.shipping_address?.last_name}
-          </Text>
-          <Text className="txt-medium text-ui-fg-subtle">
+          </span>
+          <span>
             {order.shipping_address?.address_1}{" "}
             {order.shipping_address?.address_2}
-          </Text>
-          <Text className="txt-medium text-ui-fg-subtle">
+          </span>
+          <span>
             {order.shipping_address?.postal_code},{" "}
             {order.shipping_address?.city}
-          </Text>
-          <Text className="txt-medium text-ui-fg-subtle">
-            {order.shipping_address?.country_code?.toUpperCase()}
-          </Text>
-        </div>
+          </span>
+          <span>{order.shipping_address?.country_code?.toUpperCase()}</span>
+        </Block>
 
-        <div
-          className="flex flex-col w-1/3 "
-          data-testid="shipping-contact-summary"
-        >
-          <Text className="txt-medium-plus text-ui-fg-base mb-1">Contact</Text>
-          <Text className="txt-medium text-ui-fg-subtle">
-            {order.shipping_address?.phone}
-          </Text>
-          <Text className="txt-medium text-ui-fg-subtle">{order.email}</Text>
-        </div>
+        <Block label="Contact" data-testid="shipping-contact-summary">
+          <span>{order.shipping_address?.phone}</span>
+          <span className="break-all">{order.email}</span>
+        </Block>
 
-        <div
-          className="flex flex-col w-1/3"
-          data-testid="shipping-method-summary"
-        >
-          <Text className="txt-medium-plus text-ui-fg-base mb-1">Method</Text>
-          <Text className="txt-medium text-ui-fg-subtle">
-            {(order as any).shipping_methods[0]?.name} (
-            {convertToLocale({
-              amount: order.shipping_methods?.[0].total ?? 0,
-              currency_code: order.currency_code,
-            })}
-            )
-          </Text>
-        </div>
+        {method && (
+          <Block label="Method" data-testid="shipping-method-summary">
+            <span>
+              {method.name}{" "}
+              <span className="font-bold text-ink-900">
+                {convertToLocale({
+                  amount: method.total ?? 0,
+                  currency_code: order.currency_code,
+                })}
+              </span>
+            </span>
+          </Block>
+        )}
       </div>
-      <Divider className="mt-8" />
-    </div>
+    </section>
   )
 }
 

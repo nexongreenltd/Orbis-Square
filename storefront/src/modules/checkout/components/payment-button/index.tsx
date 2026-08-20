@@ -3,10 +3,15 @@
 import { isManual, isStripeLike } from "@lib/constants"
 import { placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
-import { Button } from "@medusajs/ui"
+import { clx } from "@medusajs/ui"
+import Spinner from "@modules/common/icons/spinner"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
+
+/** The final CTA on the checkout — the accent button used across the store. */
+const placeOrderButtonClasses =
+  "inline-flex h-12 w-full items-center justify-center gap-2 bg-orbis-600 px-6 xsmall:w-auto xsmall:min-w-[240px] text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-orbis-700 disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-400 disabled:hover:bg-ink-200"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -40,7 +45,15 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
     default:
-      return <Button disabled>Select a payment method</Button>
+      return (
+        <button
+          type="button"
+          disabled
+          className={clx(placeOrderButtonClasses, "cursor-not-allowed")}
+        >
+          Select a payment method
+        </button>
+      )
   }
 }
 
@@ -134,15 +147,16 @@ const StripePaymentButton = ({
 
   return (
     <>
-      <Button
-        disabled={disabled || notReady}
+      <button
+        type="button"
+        disabled={disabled || notReady || submitting}
         onClick={handlePayment}
-        size="large"
-        isLoading={submitting}
         data-testid={dataTestId}
+        className={placeOrderButtonClasses}
       >
+        {submitting && <Spinner />}
         Place order
-      </Button>
+      </button>
       <ErrorMessage
         error={errorMessage}
         data-testid="stripe-payment-error-message"
@@ -173,15 +187,16 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
 
   return (
     <>
-      <Button
-        disabled={notReady}
-        isLoading={submitting}
+      <button
+        type="button"
+        disabled={notReady || submitting}
         onClick={handlePayment}
-        size="large"
         data-testid="submit-order-button"
+        className={placeOrderButtonClasses}
       >
+        {submitting && <Spinner />}
         Place order
-      </Button>
+      </button>
       <ErrorMessage
         error={errorMessage}
         data-testid="manual-payment-error-message"

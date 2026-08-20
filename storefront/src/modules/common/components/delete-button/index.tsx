@@ -7,10 +7,12 @@ const DeleteButton = ({
   id,
   children,
   className,
+  "data-testid": dataTestid,
 }: {
   id: string
   children?: React.ReactNode
   className?: string
+  "data-testid"?: string
 }) => {
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -22,20 +24,19 @@ const DeleteButton = ({
   }
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => handleDelete(id)}
+      data-testid={dataTestid}
       className={clx(
-        "flex items-center justify-between text-small-regular",
+        "flex items-center gap-x-1 text-xs text-ink-500 transition-colors hover:text-orbis-600",
         className
       )}
     >
-      <button
-        className="flex gap-x-1 text-ui-fg-subtle hover:text-ui-fg-base cursor-pointer"
-        onClick={() => handleDelete(id)}
-      >
-        {isDeleting ? <Spinner className="animate-spin" /> : <Trash />}
-        <span>{children}</span>
-      </button>
-    </div>
+      {isDeleting ? <Spinner className="animate-spin" /> : <Trash />}
+      {children && <span>{children}</span>}
+      <span className="sr-only">Remove item from cart</span>
+    </button>
   )
 }
 
