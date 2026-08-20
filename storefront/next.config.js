@@ -5,6 +5,13 @@ checkEnvVariables()
 /**
  * Medusa Cloud-related environment variables
  */
+// Product images uploaded through the admin live in the R2 bucket behind this
+// domain. Without a remotePatterns entry, next/image rejects them with
+// INVALID_IMAGE_OPTIMIZE_REQUEST and the product shows a broken image even
+// though the file itself serves fine from R2.
+const MEDIA_HOSTNAME =
+  process.env.NEXT_PUBLIC_MEDIA_HOSTNAME || "media.orbissquare.com"
+
 const S3_HOSTNAME = process.env.MEDUSA_CLOUD_S3_HOSTNAME
 const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
 
@@ -29,6 +36,10 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: MEDIA_HOSTNAME,
       },
       {
         protocol: "https",
