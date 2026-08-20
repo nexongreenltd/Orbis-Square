@@ -191,9 +191,11 @@ Set the function region to `sin1` under Settings → Functions.
 
 ```bash
 apt install -y awscli
-aws configure     # R2 token; region "auto"
 crontab -e
 ```
+
+No `aws configure` needed — the script exports the R2 credentials already in
+`.env`.
 
 ```cron
 0 3 * * * /opt/orbissquare/backend/scripts/backup-db.sh >> /var/log/medusa-backup.log 2>&1

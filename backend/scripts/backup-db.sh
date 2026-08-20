@@ -21,6 +21,14 @@ set -a; source "${STACK_DIR}/.env"; set +a
 : "${BACKUP_BUCKET:?BACKUP_BUCKET is required}"
 : "${S3_ENDPOINT:?S3_ENDPOINT is required}"
 
+# Reuse the R2 credentials the app already has rather than depending on a
+# separate `aws configure` having been run as the right user. Cron runs with a
+# bare environment, and a backup that fails only under cron is the kind you
+# discover when you need the restore.
+export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:?S3_ACCESS_KEY_ID is required}"
+export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY:?S3_SECRET_ACCESS_KEY is required}"
+export AWS_DEFAULT_REGION=auto
+
 ARCHIVE="/tmp/medusa-${STAMP}.sql.gz"
 
 echo "==> Dumping database"
