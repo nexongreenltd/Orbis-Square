@@ -136,7 +136,7 @@ Point this record at the server before starting the stack — Caddy cannot issue
 certificate until it resolves.
 
 ```
-A   api.orbissquare.com   -> <server-ip>
+A   admin.orbissquare.com   -> <server-ip>
 ```
 
 ### 3. Server
@@ -174,14 +174,14 @@ never needs a manual migration step.
 docker compose exec backend npx medusa user -e you@orbissquare.com -p '<password>'
 ```
 
-Admin dashboard: `https://api.orbissquare.com/app`.
+Admin dashboard: `https://admin.orbissquare.com/app`.
 
 ### 6. Point the storefront at it
 
 In Vercel:
 
 ```
-MEDUSA_BACKEND_URL=https://api.orbissquare.com
+MEDUSA_BACKEND_URL=https://admin.orbissquare.com
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=<Settings → Publishable API Keys>
 ```
 
